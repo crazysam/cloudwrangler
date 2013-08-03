@@ -81,10 +81,8 @@ public class LassoController : MonoBehaviour
 		}
 		else if (Input.GetMouseButtonUp(0))
 		{
-			if(isEngaged)
-				DisengageLasso();
-			else if(isHooked)
-				UnhookLasso();
+			DisengageLasso();
+			UnhookLasso();
 		}
 	}
 
@@ -107,13 +105,14 @@ public class LassoController : MonoBehaviour
 	void HookLasso()
 	{
 		isHooked = true;
-//		GetComponent<SpringJoint>().connectedBody = cloudCollider.GetComponent<Rigidbody>();
+		transform.parent.GetComponent<FixedJoint>().connectedBody = cloudCollider.GetComponent<Rigidbody>();
 	}
 	
 	void UnhookLasso()
 	{
 		isHooked = false;
-//		GetComponent<SpringJoint>().connectedBody = null;
+		transform.parent.GetComponent<FixedJoint>().connectedBody = null;
+		CloudController.numRainingClouds = 0;
 	}
 	
 	// lasso becomes hooked when there is clouds within cloud collider

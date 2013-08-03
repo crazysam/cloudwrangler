@@ -5,6 +5,7 @@ public class PlayerController : MonoBehaviour
 {
 	public int moveSpeed;
 	public int rotateSpeed;
+	public float lookAtDamping;
 
 	private LassoController lassoController;
 
@@ -37,6 +38,10 @@ public class PlayerController : MonoBehaviour
 		
 		if(lassoController.isHooked)
 		{
+			// Look at and dampen the rotation
+			Quaternion rotation = Quaternion.LookRotation(lassoController.cloudCollider.transform.position - transform.position);
+			transform.rotation = Quaternion.Slerp(transform.rotation, rotation, Time.deltaTime * lookAtDamping);
+			
 			Vector3 left = transform.TransformDirection(Vector3.left);
 			
 			// Strafe
