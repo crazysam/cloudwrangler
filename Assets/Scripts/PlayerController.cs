@@ -3,8 +3,8 @@ using System.Collections;
 
 public class PlayerController : MonoBehaviour
 {
-	public int moveSpeed = 100;
-	public int rotateSpeed = 10;
+	public int moveSpeed;
+	public int rotateSpeed;
 
 	// Use this for initialization
 	void Start()
@@ -16,7 +16,7 @@ public class PlayerController : MonoBehaviour
 	void Update()
 	{
 		Vector3 forward = transform.TransformDirection(Vector3.forward);
-		CharacterController controller = GetComponent("CharacterController") as CharacterController;
+		CharacterController controller = GetComponent < CharacterController>();
 
 		int speed = moveSpeed;
 		if (Debug.isDebugBuild && Input.GetKey(KeyCode.LeftShift))
