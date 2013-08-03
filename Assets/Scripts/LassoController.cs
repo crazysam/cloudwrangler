@@ -6,13 +6,16 @@ using System.Collections.Generic;
 public class LassoController : MonoBehaviour
 {
 	public int moveSpeed;
+	public int minCloudColliderSize;
+	public int cloudColliderShrinkSpeed;
 	public float trailLifetime;
 	public Transform cloudCollider;
 	public Transform lassoSpawnLocation;
 
 	[HideInInspector]
 	public bool isEngaged;
-	private float lifetimeCounter;
+	private float lassoLifetime;
+	private float colliderRadius;
 	private List<Vector2> pointList;
 
 	// Use this for initialization
@@ -29,8 +32,8 @@ public class LassoController : MonoBehaviour
 	{
 		if (isEngaged)
 		{
-			lifetimeCounter -= Time.deltaTime;
-			if (lifetimeCounter > 0)
+			lassoLifetime -= Time.deltaTime;
+			if (lassoLifetime > 0)
 			{
 				RaycastHit hitInfo = new RaycastHit();
 				Ray mouseRay = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -50,6 +53,20 @@ public class LassoController : MonoBehaviour
 			else
 				DisengageLasso();
 		}
+		
+		// shrink cloud collider
+		if(cloudCollider.gameObject.activeSelf && colliderRadius != -1)
+		{
+			if(colliderRadius > minCloudColliderSize)
+			{
+				colliderRadius -= Time.deltaTime * cloudColliderShrinkSpeed;
+				cloudCollider.localScale = new Vector3(colliderRadius, cloudCollider.localScale.y, colliderRadius);
+			}
+			else
+			{
+				cloudCollider.gameObject.SetActive(false);
+			}
+		}
 
 		// Process Input
 		if (!isEngaged && Input.GetMouseButtonDown(0))
@@ -61,7 +78,7 @@ public class LassoController : MonoBehaviour
 	private void EngageLasso()
 	{
 		isEngaged = true;
-		lifetimeCounter = trailLifetime;
+		lassoLifetime = trailLifetime;
 		pointList = new List<Vector2>();
 		GetComponent<TrailRenderer>().time = trailLifetime;
 		transform.position = lassoSpawnLocation.position;
@@ -84,7 +101,6 @@ public class LassoController : MonoBehaviour
 			Vector2 prevPointEndPos = pointList[i + 1];
 			if (FasterLineSegmentIntersection(newPointStartPos, newPointEndPos, prevPointStartPos, prevPointEndPos))
 			{
-				print("INTERSECTION!!!");
 				DisengageLasso();
 				
 				float maxDistance = 0;
@@ -99,19 +115,27 @@ public class LassoController : MonoBehaviour
 					}
 				}
 				
-				Vector2 midPoint = Vector2.Lerp(newPointEndPos, pointList[mostDistantPoint], 0.5f);
+				float colliderRadius = maxDistance / 2;
 				
-				// position and scale cloud collider
-				cloudCollider.position = new Vector3(midPoint.x, cloudCollider.position.y, midPoint.y);
-				
-				// tween scale, so it bounces in
-				TweenParms parms = new TweenParms();
-				parms.Prop("localScale", new Vector3(maxDistance / 2, cloudCollider.localScale.y, maxDistance / 2));
-				parms.Ease(EaseType.EaseOutElastic); // Easing type
-				HOTween.To(cloudCollider, 0.5f, parms);
-				
-				// activate object
-				cloudCollider.gameObject.SetActive(true);
+				// make sure cloudCollider will be big enough
+				if(colliderRadius > minCloudColliderSize)
+				{
+					this.colliderRadius = -1; // prevent update loop from prematurely killing Collider
+					Vector2 midPoint = Vector2.Lerp(newPointEndPos, pointList[mostDistantPoint], 0.5f);
+					
+					// position and scale cloud collider
+					cloudCollider.position = new Vector3(midPoint.x, cloudCollider.position.y, midPoint.y);
+					
+					// tween scale, so it bounces in
+					TweenParms tp = new TweenParms();
+					tp.Prop("localScale", new Vector3(colliderRadius, cloudCollider.localScale.y, colliderRadius));
+					tp.Ease(EaseType.EaseOutElastic); // Bouncy!
+					tp.OnComplete( () => { this.colliderRadius = colliderRadius; } );
+					HOTween.To(cloudCollider, 0.5f, tp);
+					
+					// activate object
+					cloudCollider.gameObject.SetActive(true);
+				}
 				return;
 			}
 		}
