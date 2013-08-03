@@ -15,7 +15,7 @@ public class LassoController : MonoBehaviour
 	[HideInInspector]
 	public bool isEngaged; // this is when lasso is extending (being drawn)
 	[HideInInspector]
-	public bool isHooked; // this is when 
+	public bool isHooked; // this is when cloud collider has grabbed some clouds (being pulled)
 	
 	private float lassoLifetime;
 	private float colliderRadius;
