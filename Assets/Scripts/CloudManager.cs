@@ -5,9 +5,10 @@ public class CloudManager : MonoBehaviour
 {
 
     public int totalClouds;
-    public Transform cloud;
     public Terrain terrain;
+    public Transform cloud;
     public Transform player;
+    public Transform cloudCollider;
     public float runThresholdLower;
     public float runThresholdUpper;
     public float runVelocityLower;
@@ -22,13 +23,14 @@ public class CloudManager : MonoBehaviour
         Vector3 terrainPosition = terrain.transform.position;
         for (int i = 0; i < totalClouds; i++)
         {
-            float xPos = Random.Range(0, terrainSize.x);
-            float zPos = Random.Range(0, terrainSize.z);
+            float xPos = Random.Range(terrainPosition.x, terrainPosition.x + terrainSize.x);
+            float zPos = Random.Range(terrainPosition.z, terrainPosition.z + terrainSize.z);
 
-            Vector3 randomPos = new Vector3(xPos, 300f, zPos);
+            Vector3 randomPos = new Vector3(xPos, 150f, zPos);
             Transform newCloud = (Transform)Instantiate(cloud, randomPos, Quaternion.identity);
             CloudController ctrl = newCloud.GetComponent<CloudController>();
             ctrl.playerTransform = player;
+            ctrl.cloudCollider = cloudCollider;
             ctrl.runThreshold = Random.Range(runThresholdLower, runThresholdUpper);
             ctrl.runVelocity = Random.Range(runVelocityLower, runVelocityUpper);
             ctrl.normalVelocity = Random.Range(normalVelocityLower, normalVelocityUpper);
