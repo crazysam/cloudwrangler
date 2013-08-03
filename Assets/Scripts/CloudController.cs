@@ -8,6 +8,9 @@ public class CloudController : MonoBehaviour
     public float runThreshold;
     public float runVelocity;
     public float normalVelocity;
+
+    public Material idleMaterial;
+    public Material rainMaterial;
 	
 	[HideInInspector]
 	public static int numRainingClouds = 0;
@@ -19,6 +22,7 @@ public class CloudController : MonoBehaviour
         Dead
     }
 
+    [HideInInspector]
     public CloudState state;
 
     // Use this for initialization
@@ -26,6 +30,7 @@ public class CloudController : MonoBehaviour
     {
         particleSystem.enableEmission = false;
         state = CloudState.Normal;
+        renderer.material = idleMaterial;
     }
 
     // Update is called once per frame
@@ -48,9 +53,9 @@ public class CloudController : MonoBehaviour
         else if (state == CloudState.Rain && cloudColliderCenter != null)
         {
             Vector3 deltaPosition = new Vector3(0, 0, 0);//transform.position - cloudColliderCenter.position;
-            //deltaPosition.Normalize();
-            //deltaPosition.y = 0.0f;
+
             rigidbody.velocity = deltaPosition * normalVelocity;
+            renderer.material = rainMaterial;
         }
     }
 
