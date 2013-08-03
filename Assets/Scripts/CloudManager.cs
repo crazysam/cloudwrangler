@@ -30,7 +30,6 @@ public class CloudManager : MonoBehaviour
             Transform newCloud = (Transform)Instantiate(cloud, randomPos, Quaternion.identity);
             CloudController ctrl = newCloud.GetComponent<CloudController>();
             ctrl.playerTransform = player;
-            ctrl.cloudCollider = cloudCollider;
             ctrl.runThreshold = Random.Range(runThresholdLower, runThresholdUpper);
             ctrl.runVelocity = Random.Range(runVelocityLower, runVelocityUpper);
             ctrl.normalVelocity = Random.Range(normalVelocityLower, normalVelocityUpper);

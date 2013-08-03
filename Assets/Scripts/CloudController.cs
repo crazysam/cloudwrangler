@@ -4,7 +4,7 @@ using System.Collections;
 public class CloudController : MonoBehaviour
 {
     public Transform playerTransform;
-    public Transform cloudCollider;
+    public Transform cloudColliderCenter;
     public float runThreshold;
     public float runVelocity;
     public float normalVelocity;
@@ -45,11 +45,11 @@ public class CloudController : MonoBehaviour
                 rigidbody.velocity = new Vector3(normalVelocity, 0, normalVelocity);
             }
         }
-        else if (state == CloudState.Rain)
+        else if (state == CloudState.Rain && cloudColliderCenter != null)
         {
-            Vector3 deltaPosition = transform.position - cloudCollider.position;
-            deltaPosition.Normalize();
-            deltaPosition.y = 0.0f;
+            Vector3 deltaPosition = new Vector3(0, 0, 0);//transform.position - cloudColliderCenter.position;
+            //deltaPosition.Normalize();
+            //deltaPosition.y = 0.0f;
             rigidbody.velocity = deltaPosition * normalVelocity;
         }
     }
@@ -62,6 +62,8 @@ public class CloudController : MonoBehaviour
             {
                 state = CloudState.Rain;
                 particleSystem.enableEmission = true;
+                cloudColliderCenter = collision.transform;
+                numRainingClouds++;
             }
         }
     }
@@ -74,6 +76,7 @@ public class CloudController : MonoBehaviour
             {
                 state = CloudState.Dead;
                 particleSystem.enableEmission = false;
+                numRainingClouds--;
             }
         }
     }
