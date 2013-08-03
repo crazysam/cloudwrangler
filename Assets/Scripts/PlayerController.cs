@@ -21,7 +21,7 @@ public class PlayerController : MonoBehaviour
 			return;
 
 		Vector3 forward = transform.TransformDirection(Vector3.forward);
-		CharacterController controller = GetComponent < CharacterController>();
+		CharacterController controller = GetComponent <CharacterController>();
 
 		int speed = moveSpeed;
 		if (Debug.isDebugBuild && Input.GetKey(KeyCode.LeftShift))

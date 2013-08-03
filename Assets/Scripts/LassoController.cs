@@ -27,6 +27,7 @@ public class LassoController : MonoBehaviour
 		HOTween.Init(false, false, true);
 		HOTween.EnableOverwriteManager();
 		DisengageLasso();
+		UnhookLasso();
 	}
 
 	// Update is called once per frame
@@ -68,7 +69,7 @@ public class LassoController : MonoBehaviour
 			}
 			else
 			{
-				isHooked = false;
+				UnhookLasso();
 				cloudCollider.gameObject.SetActive(false);
 			}
 		}
@@ -83,7 +84,7 @@ public class LassoController : MonoBehaviour
 			if(isEngaged)
 				DisengageLasso();
 			else if(isHooked)
-				isHooked = false;
+				UnhookLasso();
 		}
 	}
 
@@ -103,16 +104,28 @@ public class LassoController : MonoBehaviour
 		cloudCollider.gameObject.SetActive(false);
 	}
 	
+	void HookLasso()
+	{
+		isHooked = true;
+//		GetComponent<SpringJoint>().connectedBody = cloudCollider.GetComponent<Rigidbody>();
+	}
+	
+	void UnhookLasso()
+	{
+		isHooked = false;
+//		GetComponent<SpringJoint>().connectedBody = null;
+	}
+	
 	// lasso becomes hooked when there is clouds within cloud collider
 	private void CheckLassoHooked()
 	{
 		if(CloudController.numRainingClouds > 0)
 		{
-			isHooked = true;
+			HookLasso();
 		}
 		else
 		{
-			isHooked = false;
+			UnhookLasso();
 			// tween scale, so it scales out
 			TweenParms tp = new TweenParms();
 			tp.Prop("localScale", new Vector3(minCloudColliderSize, cloudCollider.localScale.y, minCloudColliderSize));
