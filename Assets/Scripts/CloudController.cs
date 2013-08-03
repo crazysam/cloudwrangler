@@ -28,8 +28,6 @@ public class CloudController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Vector3 terrainUpperBounds = terrainPosition + terrainSize;
-
         Vector3 deltaPosition = transform.position - playerTransform.position;
 
         if (deltaPosition.magnitude < runThreshold)
