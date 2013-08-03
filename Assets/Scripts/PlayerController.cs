@@ -33,11 +33,15 @@ public class PlayerController : MonoBehaviour
 			controller.SimpleMove(forward * (speed * Time.deltaTime));
 		else if(Input.GetKey(KeyCode.S))
 			controller.SimpleMove(-forward * (speed * Time.deltaTime));
-
+		
+		speed = rotateSpeed;
+		if (Debug.isDebugBuild && Input.GetKey(KeyCode.LeftShift))
+			speed *= 2;
+		
 		// Rotate around y - axis
 		if (Input.GetKey(KeyCode.A))
-			transform.Rotate(0, -rotateSpeed * Time.deltaTime, 0);
+			transform.Rotate(0, -speed * Time.deltaTime, 0);
 		else if (Input.GetKey(KeyCode.D))
-			transform.Rotate(0, rotateSpeed * Time.deltaTime, 0);
+			transform.Rotate(0, speed * Time.deltaTime, 0);
 	}
 }

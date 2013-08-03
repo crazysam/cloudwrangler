@@ -8,6 +8,9 @@ public class CloudController : MonoBehaviour
     public float runThreshold;
     public float runVelocity;
     public float normalVelocity;
+	
+	[HideInInspector]
+	public static int numRainingClouds = 0;
 
     public enum CloudState
     {
