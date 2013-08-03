@@ -64,6 +64,7 @@ public class CloudController : MonoBehaviour
                 particleSystem.enableEmission = true;
                 cloudColliderCenter = collision.transform;
                 numRainingClouds++;
+				print ("numRainingClouds="+numRainingClouds);
             }
         }
     }
@@ -76,7 +77,7 @@ public class CloudController : MonoBehaviour
             {
                 state = CloudState.Dead;
                 particleSystem.enableEmission = false;
-                numRainingClouds--;
+                print ("numRainingClouds="+numRainingClouds);
             }
         }
     }
