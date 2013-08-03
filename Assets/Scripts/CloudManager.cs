@@ -32,8 +32,6 @@ public class CloudManager : MonoBehaviour
             ctrl.runThreshold = Random.Range(runThresholdLower, runThresholdUpper);
             ctrl.runVelocity = Random.Range(runVelocityLower, runVelocityUpper);
             ctrl.normalVelocity = Random.Range(normalVelocityLower, normalVelocityUpper);
-            ctrl.terrainPosition = terrainPosition;
-            ctrl.terrainSize = terrainSize;
         }
     }
 
