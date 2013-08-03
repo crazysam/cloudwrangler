@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using Holoville.HOTween;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -17,6 +18,9 @@ public class LassoController : MonoBehaviour
 	// Use this for initialization
 	void Start()
 	{
+		HOTween.Init(false, false, true);
+		HOTween.EnableOverwriteManager();
+		
 		DisengageLasso();
 	}
 
@@ -99,7 +103,14 @@ public class LassoController : MonoBehaviour
 				
 				// position and scale cloud collider
 				cloudCollider.position = new Vector3(midPoint.x, cloudCollider.position.y, midPoint.y);
-				cloudCollider.localScale = new Vector3(maxDistance / 2, cloudCollider.localScale.y, maxDistance / 2);
+				
+				// tween scale, so it bounces in
+				TweenParms parms = new TweenParms();
+				parms.Prop("localScale", new Vector3(maxDistance / 2, cloudCollider.localScale.y, maxDistance / 2));
+				parms.Ease(EaseType.EaseOutElastic); // Easing type
+				HOTween.To(cloudCollider, 0.5f, parms);
+				
+				// activate object
 				cloudCollider.gameObject.SetActive(true);
 				return;
 			}
