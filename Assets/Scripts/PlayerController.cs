@@ -5,16 +5,22 @@ public class PlayerController : MonoBehaviour
 {
 	public int moveSpeed;
 	public int rotateSpeed;
+	public Transform lasso;
+
+	private LassoController lassoController;
 
 	// Use this for initialization
 	void Start()
 	{
-
+		lassoController = lasso.GetComponent<LassoController>();
 	}
 
 	// Update is called once per frame
 	void Update()
 	{
+		if (lassoController.isEngaged)
+			return;
+
 		Vector3 forward = transform.TransformDirection(Vector3.forward);
 		CharacterController controller = GetComponent < CharacterController>();
 

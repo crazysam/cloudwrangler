@@ -4,14 +4,16 @@ using System.Collections;
 public class LassoController : MonoBehaviour
 {
 	public int moveSpeed;
+	public float trailLifetime;
 	public Transform lassoSpawnLocation;
 
-	private bool isEngaged;
+	[HideInInspector]
+	public bool isEngaged;
+	private float lifetimeCounter;
 
 	// Use this for initialization
 	void Start()
 	{
-
 	}
 
 	// Update is called once per frame
@@ -19,31 +21,41 @@ public class LassoController : MonoBehaviour
 	{
 		if (isEngaged)
 		{
-			Debug.DrawLine(transform.position, Input.mousePosition);
-
-			Vector3 worldMouseLocation = new Vector3(Input.mousePosition.x, transform.position.y, Input.mousePosition.z);
-			Vector3 moveDirection = transform.position - worldMouseLocation;
-
-			Debug.DrawLine(transform.position, worldMouseLocation);
-
-			transform.position += moveDirection.normalized * (moveSpeed * Time.deltaTime);
+			lifetimeCounter -= Time.deltaTime;
+			if (lifetimeCounter > 0)
+			{
+				RaycastHit hitInfo = new RaycastHit();
+				Ray mouseRay = Camera.main.ScreenPointToRay(Input.mousePosition);
+				if (Physics.Raycast(mouseRay, out hitInfo))
+				{
+					Vector3 worldMouseLocation = new Vector3(hitInfo.point.x, transform.position.y, hitInfo.point.z);
+					transform.position = Vector3.MoveTowards(transform.position, worldMouseLocation, Time.deltaTime * moveSpeed);
+				}
+				else
+					DisengageLasso();
+			}
+			else
+				DisengageLasso();
 		}
 
-		ProcessInput();
+		// Process Input
+		if (!isEngaged && Input.GetMouseButtonDown(0))
+			EngageLasso();
+		else if (isEngaged && Input.GetMouseButtonUp(0))
+			DisengageLasso();
 	}
 
-	void ProcessInput()
+	private void EngageLasso()
 	{
-		if (!isEngaged && Input.GetMouseButtonDown(0))
-		{
-			isEngaged = true;
-			GetComponent<TrailRenderer>().enabled = true;
-			transform.position = lassoSpawnLocation.position;
-		}
-		else if (isEngaged && Input.GetMouseButtonUp(0))
-		{
-			isEngaged = false;
-			GetComponent<TrailRenderer>().enabled = false;
-		}
+		isEngaged = true;
+		lifetimeCounter = trailLifetime;
+		GetComponent<TrailRenderer>().time = trailLifetime;
+		transform.position = lassoSpawnLocation.position;
+	}
+
+	private void DisengageLasso()
+	{
+		isEngaged = false;
+		GetComponent<TrailRenderer>().time = 0;
 	}
 }
