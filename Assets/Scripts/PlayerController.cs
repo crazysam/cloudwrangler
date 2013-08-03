@@ -5,14 +5,13 @@ public class PlayerController : MonoBehaviour
 {
 	public int moveSpeed;
 	public int rotateSpeed;
-	public Transform lasso;
 
 	private LassoController lassoController;
 
 	// Use this for initialization
 	void Start()
 	{
-		lassoController = lasso.GetComponent<LassoController>();
+		lassoController = GetComponentInChildren<LassoController>();
 	}
 
 	// Update is called once per frame
@@ -34,14 +33,29 @@ public class PlayerController : MonoBehaviour
 		else if(Input.GetKey(KeyCode.S))
 			controller.SimpleMove(-forward * (speed * Time.deltaTime));
 		
-		speed = rotateSpeed;
-		if (Debug.isDebugBuild && Input.GetKey(KeyCode.LeftShift))
-			speed *= 2;
 		
-		// Rotate around y - axis
-		if (Input.GetKey(KeyCode.A))
-			transform.Rotate(0, -speed * Time.deltaTime, 0);
-		else if (Input.GetKey(KeyCode.D))
-			transform.Rotate(0, speed * Time.deltaTime, 0);
+		
+		if(lassoController.isHooked)
+		{
+			Vector3 left = transform.TransformDirection(Vector3.left);
+			
+			// Strafe
+			if (Input.GetKey(KeyCode.A))
+				controller.SimpleMove(left * (speed * Time.deltaTime));
+			else if (Input.GetKey(KeyCode.D))
+				controller.SimpleMove(-left * (speed * Time.deltaTime));
+		}
+		else
+		{
+			speed = rotateSpeed;
+			if (Debug.isDebugBuild && Input.GetKey(KeyCode.LeftShift))
+				speed *= 2;
+			
+			// Rotate around y - axis
+			if (Input.GetKey(KeyCode.A))
+				transform.Rotate(0, -speed * Time.deltaTime, 0);
+			else if (Input.GetKey(KeyCode.D))
+				transform.Rotate(0, speed * Time.deltaTime, 0);
+		}
 	}
 }
