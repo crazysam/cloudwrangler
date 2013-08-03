@@ -27,6 +27,7 @@ public class LassoController : MonoBehaviour
 		HOTween.Init(false, false, true);
 		HOTween.EnableOverwriteManager();
 		DisengageLasso();
+		UnhookLasso();
 	}
 
 	// Update is called once per frame
@@ -94,27 +95,25 @@ public class LassoController : MonoBehaviour
 		pointList = new List<Vector2>();
 		transform.position = lassoSpawnLocation.position;
 		GetComponent<TrailRenderer>().time = trailLifetime;
-		GetComponent<SpringJoint>().connectedBody = null;
 	}
 
 	private void DisengageLasso()
 	{
 		isEngaged = false;
 		GetComponent<TrailRenderer>().time = -1;
-		GetComponent<SpringJoint>().connectedBody = null;
 		cloudCollider.gameObject.SetActive(false);
 	}
 	
 	void HookLasso()
 	{
 		isHooked = true;
-		GetComponent<SpringJoint>().connectedBody = cloudCollider.GetComponent<Rigidbody>();
+//		GetComponent<SpringJoint>().connectedBody = cloudCollider.GetComponent<Rigidbody>();
 	}
 	
 	void UnhookLasso()
 	{
 		isHooked = false;
-		GetComponent<SpringJoint>().connectedBody = null;
+//		GetComponent<SpringJoint>().connectedBody = null;
 	}
 	
 	// lasso becomes hooked when there is clouds within cloud collider
