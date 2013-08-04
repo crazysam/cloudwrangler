@@ -11,6 +11,7 @@ public class LassoController : MonoBehaviour
 	public float trailLifetime;
 	public Transform cloudCollider;
 	public Transform lassoSpawnLocation;
+	public LayerMask raycastMask = -1;
 
 	[HideInInspector]
 	public bool isEngaged; // this is when lasso is extending (being drawn)
@@ -40,7 +41,7 @@ public class LassoController : MonoBehaviour
 			{
 				RaycastHit hitInfo = new RaycastHit();
 				Ray mouseRay = Camera.main.ScreenPointToRay(Input.mousePosition);
-				if (Physics.Raycast(mouseRay, out hitInfo))
+				if (Physics.Raycast(mouseRay, out hitInfo, float.MaxValue, raycastMask))
 				{
 					Vector3 worldMouseLocation = new Vector3(hitInfo.point.x, transform.position.y, hitInfo.point.z);
 					
@@ -105,14 +106,17 @@ public class LassoController : MonoBehaviour
 	void HookLasso()
 	{
 		isHooked = true;
-		transform.parent.GetComponent<FixedJoint>().connectedBody = cloudCollider.GetComponent<Rigidbody>();
 	}
 	
 	void UnhookLasso()
 	{
 		isHooked = false;
-		transform.parent.GetComponent<FixedJoint>().connectedBody = null;
 		CloudController.numRainingClouds = 0;
+		GameObject[] objs = GameObject.FindGameObjectsWithTag("CloudTag");
+		foreach(GameObject obj in objs)
+		{
+			obj.SendMessage("SetNormalState");
+		}
 	}
 	
 	// lasso becomes hooked when there is clouds within cloud collider
