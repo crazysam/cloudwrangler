@@ -10,6 +10,7 @@ public class LassoController : MonoBehaviour
 	public int cloudColliderShrinkSpeed;
 	public float trailLifetime;
 	public Transform cloudCollider;
+	public Transform lassoBar;
 	public Transform lassoSpawnLocation;
 	public LayerMask raycastMask = -1;
 
@@ -18,7 +19,9 @@ public class LassoController : MonoBehaviour
 	[HideInInspector]
 	public bool isHooked; // this is when cloud collider has grabbed some clouds (being pulled)
 	
-	private float lassoLifetime;
+	[HideInInspector]
+	public float lassoLifetime;
+	
 	private float colliderRadius;
 	private List<Vector2> pointList;
 
@@ -94,6 +97,7 @@ public class LassoController : MonoBehaviour
 		pointList = new List<Vector2>();
 		transform.position = lassoSpawnLocation.position;
 		GetComponent<TrailRenderer>().time = trailLifetime;
+		lassoBar.GetComponent<LassoBar>().BeginEngage();
 	}
 
 	private void DisengageLasso()
@@ -101,6 +105,7 @@ public class LassoController : MonoBehaviour
 		isEngaged = false;
 		GetComponent<TrailRenderer>().time = -1;
 		cloudCollider.gameObject.SetActive(false);
+		lassoBar.GetComponent<LassoBar>().EndEngage();
 	}
 	
 	void HookLasso()
@@ -123,18 +128,19 @@ public class LassoController : MonoBehaviour
 	}
 	
 	// lasso becomes hooked when there is clouds within cloud collider
-	private void CheckLassoHooked()
+	private void CheckLassoHooked(float newRadius)
 	{
 		if(CloudController.rainingClouds.Count > 0)
 		{
 			HookLasso();
+			colliderRadius = newRadius;
 		}
 		else
 		{
 			UnhookLasso();
 			// tween scale, so it scales out
 			TweenParms tp = new TweenParms();
-			tp.Prop("localScale", new Vector3(minCloudColliderSize, cloudCollider.localScale.y, minCloudColliderSize));
+			tp.Prop("localScale", new Vector3(0, cloudCollider.localScale.y, 0));
 			tp.OnComplete( () => { cloudCollider.gameObject.SetActive(false); } );
 			HOTween.To(cloudCollider, 0.25f, tp);
 		}
@@ -174,13 +180,14 @@ public class LassoController : MonoBehaviour
 					
 					// position and scale cloud collider
 					cloudCollider.position = new Vector3(midPoint.x, cloudCollider.position.y, midPoint.y);
+					cloudCollider.localScale = new Vector3(0, cloudCollider.localScale.y, 0);
 					
 					// tween scale, so it bounces in
 					TweenParms tp = new TweenParms();
 					tp.Prop("localScale", new Vector3(colliderRadius, cloudCollider.localScale.y, colliderRadius));
-					tp.Ease(EaseType.EaseOutElastic); // Bouncy!
+					tp.Ease(EaseType.EaseOutExpo); // Bouncy!
 					
-					tp.OnComplete( () => { this.colliderRadius = colliderRadius; CheckLassoHooked(); } );
+					tp.OnComplete( () => { CheckLassoHooked(colliderRadius); } );
 					HOTween.To(cloudCollider, 0.5f, tp);
 					
 					// activate object

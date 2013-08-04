@@ -5,12 +5,21 @@ using System.Collections.Generic;
 public class CloudController : MonoBehaviour
 {
     public Transform playerTransform;
-    [HideInInspector]
+	public Transform cloudMeshTransform;
+    public Material happyCloudMat;
+	public Material rainyCloudMat;
+	
+	[HideInInspector]
     public Transform cloudColliderCenter;
+	[HideInInspector]
     public float runThreshold;
+	[HideInInspector]
     public float runVelocity;
+	[HideInInspector]
     public float normalXVelocity;
+	[HideInInspector]
     public float normalZVelocity;
+	[HideInInspector]
     public float pullVelocity;
 	
 	[HideInInspector]
@@ -68,7 +77,7 @@ public class CloudController : MonoBehaviour
         {
             rigidbody.velocity = Vector3.zero;
             particleSystem.enableEmission = false;
-            gameObject.active = false;
+            gameObject.SetActive(false);
         }
     }
 	
@@ -77,6 +86,7 @@ public class CloudController : MonoBehaviour
         rigidbody.velocity = Vector3.zero;
         particleSystem.enableEmission = false;
 		state = CloudState.Normal;
+		cloudMeshTransform.GetComponent<SkinnedMeshRenderer>().material = happyCloudMat;
 	}
 	
 	public void SetDeadState()
@@ -84,7 +94,7 @@ public class CloudController : MonoBehaviour
         rigidbody.velocity = Vector3.zero;
         particleSystem.enableEmission = false;
 		state = CloudState.Dead;
-		renderer.enabled = false;
+		gameObject.SetActive(false);
 	}
 
     void OnCollisionEnter(Collision collision)
@@ -103,6 +113,7 @@ public class CloudController : MonoBehaviour
             if (state == CloudState.Normal)
             {
                 state = CloudState.Rain;
+				cloudMeshTransform.GetComponent<SkinnedMeshRenderer>().material = rainyCloudMat;
                 particleSystem.enableEmission = true;
                 cloudColliderCenter = collision.transform;
                 rainingClouds.Add(this);

@@ -38,14 +38,12 @@ public class PlayerController : MonoBehaviour
 		
 		if(lassoController.isHooked)
 		{
-			// Look at and dampen the rotation
-			Quaternion rotation = Quaternion.LookRotation(cloudCollider.position - transform.position);
-			transform.rotation = Quaternion.Slerp(transform.rotation, rotation, Time.deltaTime * lookAtDamping);
-			
 			Vector3 moveDir = new Vector3();
 			
-			// Move forward / backward
-			if(Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow))
+			float colliderDistance = Vector3.Distance(transform.position, cloudCollider.position);
+			
+			// Move forward / backward - do not allow player to move inside cloudCollider
+			if((Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow)) && colliderDistance > Mathf.Max(cloudCollider.localScale.x, 125))
 				moveDir += forward;
 			else if(Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow))
 				moveDir -= forward;
@@ -57,6 +55,15 @@ public class PlayerController : MonoBehaviour
 				moveDir -= left;
 			
 			controller.SimpleMove(moveDir * (speed * Time.deltaTime));
+			
+			// pull collider along
+			colliderDistance = Vector3.Distance(transform.position, cloudCollider.position);
+			float distanceDelta = colliderDistance - prevColliderDistance;
+			if(distanceDelta > 0)
+			{
+				Vector3 colliderToPlayerDir = cloudCollider.position - transform.position;
+				cloudCollider.position -= colliderToPlayerDir.normalized * distanceDelta;
+			}
 		}
 		else
 		{
@@ -77,16 +84,11 @@ public class PlayerController : MonoBehaviour
 				transform.Rotate(0, speed * Time.deltaTime, 0);
 		}
 		
-		// pull collider along
-		if(lassoController.isHooked)
+		// Look at collider if we caught some clouds!
+		if(cloudCollider.gameObject.activeSelf && CloudController.rainingClouds.Count > 0)
 		{
-			float currColliderDistance = Vector3.Distance(transform.position, cloudCollider.position);
-			float distanceDelta = currColliderDistance - prevColliderDistance;
-			if(distanceDelta > 0)
-			{
-				Vector3 colliderToPlayerDir = cloudCollider.position - transform.position;
-				cloudCollider.position -= colliderToPlayerDir.normalized * distanceDelta;
-			}
+			Quaternion rotation = Quaternion.LookRotation(cloudCollider.position - transform.position);
+			transform.rotation = Quaternion.Slerp(transform.rotation, rotation, Time.deltaTime * lookAtDamping);
 		}
 	}
 }
