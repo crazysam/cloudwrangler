@@ -93,7 +93,7 @@ public class CloudController : MonoBehaviour
 
     void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.name.Equals("Walls"))
+        if (collision.gameObject.name.Equals("WallPlane"))
         {
             print(collision.gameObject.name);
             flip *= -1;
