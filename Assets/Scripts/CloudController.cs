@@ -58,6 +58,11 @@ public class CloudController : MonoBehaviour
             renderer.material = rainMaterial;
         }
     }
+	
+	void SetNormalState()
+	{
+		state = CloudState.Normal;
+	}
 
     void OnTriggerEnter(Collider collision)
     {
