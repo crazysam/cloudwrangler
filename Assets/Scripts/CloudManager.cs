@@ -13,8 +13,10 @@ public class CloudManager : MonoBehaviour
     public float runThresholdUpper;
     public float runVelocityLower;
     public float runVelocityUpper;
-    public float normalVelocityLower;
-    public float normalVelocityUpper;
+    public float normalXVelocityLower;
+    public float normalXVelocityUpper;
+    public float normalZVelocityLower;
+    public float normalZVelocityUpper;
 
     // Use this for initialization
     void Start()
@@ -32,7 +34,9 @@ public class CloudManager : MonoBehaviour
             ctrl.playerTransform = player;
             ctrl.runThreshold = Random.Range(runThresholdLower, runThresholdUpper);
             ctrl.runVelocity = Random.Range(runVelocityLower, runVelocityUpper);
-            ctrl.normalVelocity = Random.Range(normalVelocityLower, normalVelocityUpper);
+            ctrl.normalXVelocity = Random.Range(normalXVelocityLower, normalXVelocityUpper);
+            ctrl.normalZVelocity = Random.Range(normalZVelocityLower, normalZVelocityUpper);
+            ctrl.pullVelocity = 100;
         }
     }
 
