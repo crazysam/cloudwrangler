@@ -23,8 +23,8 @@ public class CloudManager : MonoBehaviour
         Vector3 terrainPosition = terrain.transform.position;
         for (int i = 0; i < totalClouds; i++)
         {
-            float xPos = Random.Range(terrainPosition.x, terrainPosition.x + terrainSize.x);
-            float zPos = Random.Range(terrainPosition.z, terrainPosition.z + terrainSize.z);
+            float xPos = Random.Range(terrainPosition.x + 200, terrainPosition.x - 200 + terrainSize.x);
+            float zPos = Random.Range(terrainPosition.z + 200, terrainPosition.z - 200 + terrainSize.z);
 
             Vector3 randomPos = new Vector3(xPos, 150f, zPos);
             Transform newCloud = (Transform)Instantiate(cloud, randomPos, Quaternion.identity);

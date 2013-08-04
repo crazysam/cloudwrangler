@@ -69,6 +69,12 @@ public class CloudController : MonoBehaviour
 	
 	void SetNormalState()
 	{
+        if (state == CloudState.Rain)
+        {
+            numRainingClouds--;
+        }
+
+        particleSystem.enableEmission = false;
 		state = CloudState.Normal;
 	}
 
@@ -97,13 +103,9 @@ public class CloudController : MonoBehaviour
                 print("Exit");
                 state = CloudState.Dead;
                 particleSystem.enableEmission = false;
+                numRainingClouds--;
                 print ("numRainingClouds="+numRainingClouds);
             }
         }
-    }
-
-    void SetCloudStateNormal()
-    {
-        state = CloudState.Normal;
     }
 }
