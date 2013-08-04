@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class CloudController : MonoBehaviour
 {
@@ -15,7 +16,7 @@ public class CloudController : MonoBehaviour
     public Material rainMaterial;
 	
 	[HideInInspector]
-	public static int numRainingClouds = 0;
+	public static List<CloudController> rainingClouds = new List<CloudController>();
 
     public enum CloudState
     {
@@ -71,16 +72,19 @@ public class CloudController : MonoBehaviour
         }
     }
 	
-	void SetNormalState()
+	public void SetNormalState()
 	{
-        if (state == CloudState.Rain)
-        {
-            numRainingClouds--;
-        }
-
         rigidbody.velocity = Vector3.zero;
         particleSystem.enableEmission = false;
 		state = CloudState.Normal;
+	}
+	
+	public void SetDeadState()
+	{
+        rigidbody.velocity = Vector3.zero;
+        particleSystem.enableEmission = false;
+		state = CloudState.Dead;
+		renderer.enabled = false;
 	}
 
     void OnTriggerEnter(Collider collision)
@@ -92,7 +96,7 @@ public class CloudController : MonoBehaviour
                 state = CloudState.Rain;
                 particleSystem.enableEmission = true;
                 cloudColliderCenter = collision.transform;
-                numRainingClouds++;
+                rainingClouds.Add(this);
             }
         }
     }
@@ -105,7 +109,7 @@ public class CloudController : MonoBehaviour
             {
                 state = CloudState.Dead;
                 particleSystem.enableEmission = false;
-                numRainingClouds--;
+                rainingClouds.Remove(this);
             }
         }
     }
