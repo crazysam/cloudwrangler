@@ -37,6 +37,8 @@ public class LassoController : MonoBehaviour
 	// Update is called once per frame
 	void Update()
 	{
+		if(GameController.state != GameController.GameState.play) return;
+		
 		if (isEngaged)
 		{
 			lassoLifetime -= Time.deltaTime;
@@ -66,7 +68,7 @@ public class LassoController : MonoBehaviour
 		// shrink cloud collider
 		if(cloudCollider.gameObject.activeSelf && colliderRadius != -1)
 		{
-			if(colliderRadius > 0 && CloudController.rainingClouds.Count > 0)
+			if(colliderRadius > minCloudColliderSize && CloudController.rainingClouds.Count > 0)
 			{
 				colliderRadius -= Time.deltaTime * cloudColliderShrinkSpeed;
 				cloudCollider.localScale = new Vector3(colliderRadius, cloudCollider.localScale.y, colliderRadius);

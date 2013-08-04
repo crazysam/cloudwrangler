@@ -22,7 +22,7 @@ public class PlayerController : MonoBehaviour
 	// Update is called once per frame
 	void Update()
 	{
-		if (lassoController.isEngaged)
+		if (lassoController.isEngaged || GameController.state != GameController.GameState.play)
 			return;
 		
 		CharacterController controller = GetComponent <CharacterController>();

@@ -68,13 +68,15 @@ public class CloudController : MonoBehaviour
         else if (state == CloudState.Rain && cloudColliderCenter != null)
         {
 			// Add force to keep cloud within cloudCollider
+			float colliderRadius = cloudColliderCenter.localScale.x;
             Vector3 deltaPosition = cloudColliderCenter.position - transform.position;
             deltaPosition.y = 0.0f;
-
-            float deltaMag = deltaPosition.magnitude;
-            deltaPosition.Normalize();
-
-            rigidbody.AddForce(deltaPosition * pullVelocity * deltaMag);
+			
+            float magnitudeFromCenter = deltaPosition.magnitude / (colliderRadius / 2);
+			if(!float.IsInfinity(magnitudeFromCenter))
+			{
+            	rigidbody.AddForce(deltaPosition.normalized * pullVelocity * magnitudeFromCenter);
+			}
 			
 			// Spawn flora object directly underneath cloud
 			RaycastHit hitInfo = new RaycastHit();
@@ -85,7 +87,7 @@ public class CloudController : MonoBehaviour
 				{
 					Quaternion newRot = Quaternion.Euler(90, 0, Random.Range(0, 360f));
 					Instantiate(floraPrefab, new Vector3(hitInfo.point.x, hitInfo.point.y + 0.1f, hitInfo.point.z), newRot);
-					
+					GameController.score++;
 				}
 			}
         }
@@ -111,7 +113,6 @@ public class CloudController : MonoBehaviour
     {
         if (collision.gameObject.name.Equals("WallPlane"))
         {
-            print(collision.gameObject.name);
             flip *= -1;
         }
     }
@@ -137,8 +138,8 @@ public class CloudController : MonoBehaviour
         {
             if (state == CloudState.Rain)
             {
+				SetDeadState();
                 rainingClouds.Remove(this);
-                SetDeadState();
             }
         }
     }

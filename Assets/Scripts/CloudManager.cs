@@ -9,6 +9,7 @@ public class CloudManager : MonoBehaviour
     public Transform cloud;
     public Transform player;
     public Transform cloudCollider;
+	public float colliderPullForce;
     public float runThresholdLower;
     public float runThresholdUpper;
     public float runVelocityLower;
@@ -36,7 +37,7 @@ public class CloudManager : MonoBehaviour
             ctrl.runVelocity = Random.Range(runVelocityLower, runVelocityUpper);
             ctrl.normalXVelocity = Random.Range(normalXVelocityLower, normalXVelocityUpper);
             ctrl.normalZVelocity = Random.Range(normalZVelocityLower, normalZVelocityUpper);
-            ctrl.pullVelocity = 100;
+            ctrl.pullVelocity = colliderPullForce;
         }
     }
 
