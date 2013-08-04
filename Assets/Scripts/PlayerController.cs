@@ -45,15 +45,15 @@ public class PlayerController : MonoBehaviour
 			Vector3 moveDir = new Vector3();
 			
 			// Move forward / backward
-			if(Input.GetKey(KeyCode.W))
+			if(Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow))
 				moveDir += forward;
-			else if(Input.GetKey(KeyCode.S))
+			else if(Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow))
 				moveDir -= forward;
 			
 			// Strafe
-			if (Input.GetKey(KeyCode.A))
+			if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))
 				moveDir += left;
-			else if (Input.GetKey(KeyCode.D))
+			else if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
 				moveDir -= left;
 			
 			controller.SimpleMove(moveDir * (speed * Time.deltaTime));
@@ -61,9 +61,9 @@ public class PlayerController : MonoBehaviour
 		else
 		{
 			// Move forward / backward
-			if(Input.GetKey(KeyCode.W))
+			if(Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow))
 				controller.SimpleMove(forward * (speed * Time.deltaTime));
-			else if(Input.GetKey(KeyCode.S))
+			else if(Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow))
 				controller.SimpleMove(-forward * (speed * Time.deltaTime));
 			
 			speed = rotateSpeed;
@@ -71,9 +71,9 @@ public class PlayerController : MonoBehaviour
 				speed *= 2;
 			
 			// Rotate around y - axis
-			if (Input.GetKey(KeyCode.A))
+			if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))
 				transform.Rotate(0, -speed * Time.deltaTime, 0);
-			else if (Input.GetKey(KeyCode.D))
+			else if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
 				transform.Rotate(0, speed * Time.deltaTime, 0);
 		}
 		
@@ -81,16 +81,11 @@ public class PlayerController : MonoBehaviour
 		if(lassoController.isHooked)
 		{
 			float currColliderDistance = Vector3.Distance(transform.position, cloudCollider.position);
-			PullCollider(currColliderDistance - prevColliderDistance);
-		}
-	}
-	
-	void PullCollider(float distanceDelta)
-	{
-		if(distanceDelta > 0)
-		{
-			Vector3 colliderToPlayerDir = cloudCollider.position - transform.position;
-			cloudCollider.position -= colliderToPlayerDir.normalized * distanceDelta;
+			if(distanceDelta > 0)
+			{
+				Vector3 colliderToPlayerDir = cloudCollider.position - transform.position;
+				cloudCollider.position -= colliderToPlayerDir.normalized * distanceDelta;
+			}
 		}
 	}
 }
