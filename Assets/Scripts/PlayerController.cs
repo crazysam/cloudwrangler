@@ -40,8 +40,10 @@ public class PlayerController : MonoBehaviour
 		{
 			Vector3 moveDir = new Vector3();
 			
-			// Move forward / backward
-			if(Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow))
+			float colliderDistance = Vector3.Distance(transform.position, cloudCollider.position);
+			
+			// Move forward / backward - do not allow player to move inside cloudCollider
+			if((Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow)) && colliderDistance > Mathf.Max(cloudCollider.localScale.x, 125))
 				moveDir += forward;
 			else if(Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow))
 				moveDir -= forward;
@@ -53,6 +55,15 @@ public class PlayerController : MonoBehaviour
 				moveDir -= left;
 			
 			controller.SimpleMove(moveDir * (speed * Time.deltaTime));
+			
+			// pull collider along
+			colliderDistance = Vector3.Distance(transform.position, cloudCollider.position);
+			float distanceDelta = colliderDistance - prevColliderDistance;
+			if(distanceDelta > 0)
+			{
+				Vector3 colliderToPlayerDir = cloudCollider.position - transform.position;
+				cloudCollider.position -= colliderToPlayerDir.normalized * distanceDelta;
+			}
 		}
 		else
 		{
@@ -71,18 +82,6 @@ public class PlayerController : MonoBehaviour
 				transform.Rotate(0, -speed * Time.deltaTime, 0);
 			else if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
 				transform.Rotate(0, speed * Time.deltaTime, 0);
-		}
-		
-		// pull collider along
-		if(lassoController.isHooked)
-		{
-			float currColliderDistance = Vector3.Distance(transform.position, cloudCollider.position);
-			float distanceDelta = currColliderDistance - prevColliderDistance;
-			if(distanceDelta > 0)
-			{
-				Vector3 colliderToPlayerDir = cloudCollider.position - transform.position;
-				cloudCollider.position -= colliderToPlayerDir.normalized * distanceDelta;
-			}
 		}
 		
 		// Look at collider if we caught some clouds!
