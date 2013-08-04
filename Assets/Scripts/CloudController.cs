@@ -8,6 +8,8 @@ public class CloudController : MonoBehaviour
     public float runThreshold;
     public float runVelocity;
     public float normalVelocity;
+    public float pullVelocity;
+    
 
     public Material idleMaterial;
     public Material rainMaterial;
@@ -54,9 +56,11 @@ public class CloudController : MonoBehaviour
         {
             Vector3 deltaPosition = cloudColliderCenter.position - transform.position;
             deltaPosition.y = 0.0f;
+
+            float deltaMag = deltaPosition.magnitude;
             deltaPosition.Normalize();
 
-            rigidbody.AddForce(deltaPosition * 10000);
+            rigidbody.AddForce(deltaPosition * pullVelocity * deltaMag);
             renderer.material = rainMaterial;
         }
         else if (state == CloudState.Dead)
