@@ -5,15 +5,13 @@ using System.Collections.Generic;
 public class CloudController : MonoBehaviour
 {
     public Transform playerTransform;
+    [HideInInspector]
     public Transform cloudColliderCenter;
     public float runThreshold;
     public float runVelocity;
-    public float normalVelocity;
+    public float normalXVelocity;
+    public float normalZVelocity;
     public float pullVelocity;
-    
-
-    public Material idleMaterial;
-    public Material rainMaterial;
 	
 	[HideInInspector]
 	public static List<CloudController> rainingClouds = new List<CloudController>();
@@ -28,12 +26,14 @@ public class CloudController : MonoBehaviour
     [HideInInspector]
     public CloudState state;
 
+    private int flip;
+
     // Use this for initialization
     void Start()
     {
         particleSystem.enableEmission = false;
         state = CloudState.Normal;
-        renderer.material = idleMaterial;
+        flip = 1;
     }
 
     // Update is called once per frame
@@ -48,9 +48,10 @@ public class CloudController : MonoBehaviour
                 deltaPosition.y = 0.0f;
                 rigidbody.velocity = deltaPosition * runVelocity;
             }
-            else if (rigidbody.velocity.magnitude < 10.0f)
+            else
             {
-                rigidbody.velocity = new Vector3(normalVelocity, 0, normalVelocity);
+                
+                rigidbody.velocity = new Vector3(flip * normalXVelocity, 0, flip * normalZVelocity);
             }
         }
         else if (state == CloudState.Rain && cloudColliderCenter != null)
@@ -62,13 +63,12 @@ public class CloudController : MonoBehaviour
             deltaPosition.Normalize();
 
             rigidbody.AddForce(deltaPosition * pullVelocity * deltaMag);
-            renderer.material = rainMaterial;
         }
         else if (state == CloudState.Dead)
         {
             rigidbody.velocity = Vector3.zero;
             particleSystem.enableEmission = false;
-            renderer.enabled = false;
+            gameObject.active = false;
         }
     }
 	
@@ -86,6 +86,15 @@ public class CloudController : MonoBehaviour
 		state = CloudState.Dead;
 		renderer.enabled = false;
 	}
+
+    void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.name.Equals("Walls"))
+        {
+            print("WALL HIT");
+            flip *= -1;
+        }
+    }
 
     void OnTriggerEnter(Collider collision)
     {
