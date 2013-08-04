@@ -6,6 +6,8 @@ public class CloudController : MonoBehaviour
 {
     public Transform playerTransform;
 	public Transform cloudMeshTransform;
+	public Transform floraPrefab;
+	public LayerMask floraRaycastMask = -1;
     public Material happyCloudMat;
 	public Material rainyCloudMat;
 	
@@ -65,6 +67,7 @@ public class CloudController : MonoBehaviour
         }
         else if (state == CloudState.Rain && cloudColliderCenter != null)
         {
+			// Add force to keep cloud within cloudCollider
             Vector3 deltaPosition = cloudColliderCenter.position - transform.position;
             deltaPosition.y = 0.0f;
 
@@ -72,9 +75,22 @@ public class CloudController : MonoBehaviour
             deltaPosition.Normalize();
 
             rigidbody.AddForce(deltaPosition * pullVelocity * deltaMag);
+			
+			// Spawn flora object directly underneath cloud
+			RaycastHit hitInfo = new RaycastHit();
+			Ray mouseRay = new Ray(transform.position, Vector3.down);
+			if (Physics.Raycast(mouseRay, out hitInfo, float.MaxValue, floraRaycastMask))
+			{
+				if(hitInfo.collider.tag != "FloraTag")
+				{
+					Quaternion newRot = Quaternion.Euler(90, 0, Random.Range(0, 360f));
+					Instantiate(floraPrefab, new Vector3(hitInfo.point.x, hitInfo.point.y + 0.1f, hitInfo.point.z), newRot);
+					
+				}
+			}
         }
     }
-	
+
 	public void SetNormalState()
 	{
         rigidbody.velocity = Vector3.zero;
