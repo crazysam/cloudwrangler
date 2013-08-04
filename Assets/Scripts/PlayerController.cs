@@ -8,6 +8,10 @@ public class PlayerController : MonoBehaviour
 	public float lookAtDamping;
 
 	private LassoController lassoController;
+	private Transform cloudCollider 
+	{ 
+		get { return lassoController.cloudCollider.transform; }
+	}
 
 	// Use this for initialization
 	void Start()
@@ -20,38 +24,48 @@ public class PlayerController : MonoBehaviour
 	{
 		if (lassoController.isEngaged)
 			return;
-
-		Vector3 forward = transform.TransformDirection(Vector3.forward);
+		
 		CharacterController controller = GetComponent <CharacterController>();
-
+		Vector3 forward = transform.TransformDirection(Vector3.forward);
+		Vector3 left = transform.TransformDirection(Vector3.left);
+		
+		// get distance to collider so we can calculate how much we should displace it by if player is pulling it
+		float prevColliderDistance = lassoController.isHooked ? Vector3.Distance(transform.position, cloudCollider.position) : 0;
+		
 		int speed = moveSpeed;
 		if (Debug.isDebugBuild && Input.GetKey(KeyCode.LeftShift))
 			speed *= 2;
-
-		// Move forward / backward
-		if(Input.GetKey(KeyCode.W))
-			controller.SimpleMove(forward * (speed * Time.deltaTime));
-		else if(Input.GetKey(KeyCode.S))
-			controller.SimpleMove(-forward * (speed * Time.deltaTime));
-		
-		
 		
 		if(lassoController.isHooked)
 		{
 			// Look at and dampen the rotation
-			Quaternion rotation = Quaternion.LookRotation(lassoController.cloudCollider.transform.position - transform.position);
+			Quaternion rotation = Quaternion.LookRotation(cloudCollider.position - transform.position);
 			transform.rotation = Quaternion.Slerp(transform.rotation, rotation, Time.deltaTime * lookAtDamping);
 			
-			Vector3 left = transform.TransformDirection(Vector3.left);
+			Vector3 moveDir = new Vector3();
+			
+			// Move forward / backward
+			if(Input.GetKey(KeyCode.W))
+				moveDir += forward;
+			else if(Input.GetKey(KeyCode.S))
+				moveDir -= forward;
 			
 			// Strafe
 			if (Input.GetKey(KeyCode.A))
-				controller.SimpleMove(left * (speed * Time.deltaTime));
+				moveDir += left;
 			else if (Input.GetKey(KeyCode.D))
-				controller.SimpleMove(-left * (speed * Time.deltaTime));
+				moveDir -= left;
+			
+			controller.SimpleMove(moveDir * (speed * Time.deltaTime));
 		}
 		else
 		{
+			// Move forward / backward
+			if(Input.GetKey(KeyCode.W))
+				controller.SimpleMove(forward * (speed * Time.deltaTime));
+			else if(Input.GetKey(KeyCode.S))
+				controller.SimpleMove(-forward * (speed * Time.deltaTime));
+			
 			speed = rotateSpeed;
 			if (Debug.isDebugBuild && Input.GetKey(KeyCode.LeftShift))
 				speed *= 2;
@@ -61,6 +75,22 @@ public class PlayerController : MonoBehaviour
 				transform.Rotate(0, -speed * Time.deltaTime, 0);
 			else if (Input.GetKey(KeyCode.D))
 				transform.Rotate(0, speed * Time.deltaTime, 0);
+		}
+		
+		// pull collider along
+		if(lassoController.isHooked)
+		{
+			float currColliderDistance = Vector3.Distance(transform.position, cloudCollider.position);
+			PullCollider(currColliderDistance - prevColliderDistance);
+		}
+	}
+	
+	void PullCollider(float distanceDelta)
+	{
+		if(distanceDelta > 0)
+		{
+			Vector3 colliderToPlayerDir = cloudCollider.position - transform.position;
+			cloudCollider.position -= colliderToPlayerDir.normalized * distanceDelta;
 		}
 	}
 }

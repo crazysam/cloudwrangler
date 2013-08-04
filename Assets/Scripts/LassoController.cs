@@ -111,7 +111,7 @@ public class LassoController : MonoBehaviour
 	void UnhookLasso()
 	{
 		isHooked = false;
-		CloudController.numRainingClouds = 0;
+		
 		GameObject[] objs = GameObject.FindGameObjectsWithTag("CloudTag");
 		foreach(GameObject obj in objs)
 		{
