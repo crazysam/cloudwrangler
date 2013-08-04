@@ -81,6 +81,7 @@ public class PlayerController : MonoBehaviour
 		if(lassoController.isHooked)
 		{
 			float currColliderDistance = Vector3.Distance(transform.position, cloudCollider.position);
+			float distanceDelta = currColliderDistance - prevColliderDistance;
 			if(distanceDelta > 0)
 			{
 				Vector3 colliderToPlayerDir = cloudCollider.position - transform.position;
