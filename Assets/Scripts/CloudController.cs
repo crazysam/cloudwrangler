@@ -73,12 +73,6 @@ public class CloudController : MonoBehaviour
 
             rigidbody.AddForce(deltaPosition * pullVelocity * deltaMag);
         }
-        else if (state == CloudState.Dead)
-        {
-            rigidbody.velocity = Vector3.zero;
-            particleSystem.enableEmission = false;
-            gameObject.SetActive(false);
-        }
     }
 	
 	public void SetNormalState()
@@ -91,17 +85,17 @@ public class CloudController : MonoBehaviour
 	
 	public void SetDeadState()
 	{
-        rigidbody.velocity = Vector3.zero;
+        state = CloudState.Dead;
         particleSystem.enableEmission = false;
-		state = CloudState.Dead;
-		gameObject.SetActive(false);
+        rigidbody.velocity = Vector3.zero;
+        gameObject.SetActive(false);
 	}
 
     void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.name.Equals("Walls"))
         {
-            print("WALL HIT");
+            print(collision.gameObject.name);
             flip *= -1;
         }
     }
@@ -127,9 +121,8 @@ public class CloudController : MonoBehaviour
         {
             if (state == CloudState.Rain)
             {
-                state = CloudState.Dead;
-                particleSystem.enableEmission = false;
                 rainingClouds.Remove(this);
+                SetDeadState();
             }
         }
     }
