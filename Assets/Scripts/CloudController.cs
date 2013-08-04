@@ -74,6 +74,7 @@ public class CloudController : MonoBehaviour
             numRainingClouds--;
         }
 
+        rigidbody.velocity = Vector3.zero;
         particleSystem.enableEmission = false;
 		state = CloudState.Normal;
 	}
