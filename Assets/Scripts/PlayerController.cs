@@ -32,16 +32,19 @@ public class PlayerController : MonoBehaviour
 		// get distance to collider so we can calculate how much we should displace it by if player is pulling it
 		float prevColliderDistance = lassoController.isHooked ? Vector3.Distance(transform.position, cloudCollider.position) : 0;
 		
+		// Look at collider if we caught some clouds!
+		if(cloudCollider.gameObject.activeSelf && CloudController.rainingClouds.Count > 0)
+		{
+			Quaternion rotation = Quaternion.LookRotation(cloudCollider.position - transform.position);
+			transform.rotation = Quaternion.Slerp(transform.rotation, rotation, Time.deltaTime * lookAtDamping);
+		}
+		
 		int speed = moveSpeed;
 		if (Debug.isDebugBuild && Input.GetKey(KeyCode.LeftShift))
 			speed *= 2;
 		
 		if(lassoController.isHooked)
 		{
-			// Look at and dampen the rotation
-			Quaternion rotation = Quaternion.LookRotation(cloudCollider.position - transform.position);
-			transform.rotation = Quaternion.Slerp(transform.rotation, rotation, Time.deltaTime * lookAtDamping);
-			
 			Vector3 moveDir = new Vector3();
 			
 			// Move forward / backward

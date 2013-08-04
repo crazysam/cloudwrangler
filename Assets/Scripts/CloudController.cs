@@ -68,7 +68,7 @@ public class CloudController : MonoBehaviour
         {
             rigidbody.velocity = Vector3.zero;
             particleSystem.enableEmission = false;
-            gameObject.active = false;
+            gameObject.SetActive(false);
         }
     }
 	
@@ -84,7 +84,7 @@ public class CloudController : MonoBehaviour
         rigidbody.velocity = Vector3.zero;
         particleSystem.enableEmission = false;
 		state = CloudState.Dead;
-		renderer.enabled = false;
+		gameObject.SetActive(false);
 	}
 
     void OnCollisionEnter(Collision collision)
