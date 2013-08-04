@@ -52,11 +52,11 @@ public class CloudController : MonoBehaviour
         }
         else if (state == CloudState.Rain && cloudColliderCenter != null)
         {
-            Vector3 deltaPosition = transform.position - cloudColliderCenter.position;
+            Vector3 deltaPosition = cloudColliderCenter.position - transform.position;
             deltaPosition.y = 0.0f;
             deltaPosition.Normalize();
 
-            rigidbody.velocity = deltaPosition * normalVelocity;
+            rigidbody.AddForce(deltaPosition * 10000);
             renderer.material = rainMaterial;
         }
         else if (state == CloudState.Dead)
@@ -74,6 +74,7 @@ public class CloudController : MonoBehaviour
             numRainingClouds--;
         }
 
+        rigidbody.velocity = Vector3.zero;
         particleSystem.enableEmission = false;
 		state = CloudState.Normal;
 	}
