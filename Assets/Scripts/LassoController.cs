@@ -63,14 +63,14 @@ public class LassoController : MonoBehaviour
 		// shrink cloud collider
 		if(cloudCollider.gameObject.activeSelf && colliderRadius != -1)
 		{
-			if(colliderRadius > minCloudColliderSize)
+			if(colliderRadius > 0 && CloudController.rainingClouds.Count > 0)
 			{
 				colliderRadius -= Time.deltaTime * cloudColliderShrinkSpeed;
 				cloudCollider.localScale = new Vector3(colliderRadius, cloudCollider.localScale.y, colliderRadius);
 			}
 			else
 			{
-				UnhookLasso();
+				UnhookLasso(true);
 				cloudCollider.gameObject.SetActive(false);
 			}
 		}
@@ -108,21 +108,24 @@ public class LassoController : MonoBehaviour
 		isHooked = true;
 	}
 	
-	void UnhookLasso()
+	void UnhookLasso(bool killClouds = false)
 	{
 		isHooked = false;
 		
-		GameObject[] objs = GameObject.FindGameObjectsWithTag("CloudTag");
-		foreach(GameObject obj in objs)
+		foreach(CloudController cc in CloudController.rainingClouds)
 		{
-			obj.SendMessage("SetNormalState");
+			if(killClouds)
+				cc.SetDeadState();
+			else
+				cc.SetNormalState();
 		}
+		CloudController.rainingClouds = new List<CloudController>();
 	}
 	
 	// lasso becomes hooked when there is clouds within cloud collider
 	private void CheckLassoHooked()
 	{
-		if(CloudController.numRainingClouds > 0)
+		if(CloudController.rainingClouds.Count > 0)
 		{
 			HookLasso();
 		}
