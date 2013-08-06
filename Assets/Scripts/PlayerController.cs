@@ -4,6 +4,7 @@ using System.Collections;
 public class PlayerController : MonoBehaviour
 {
 	public int moveSpeed;
+	public int hookedMoveSpeed;
 	public int rotateSpeed;
 	public float lookAtDamping;
 
@@ -32,10 +33,6 @@ public class PlayerController : MonoBehaviour
 		// get distance to collider so we can calculate how much we should displace it by if player is pulling it
 		float prevColliderDistance = lassoController.isHooked ? Vector3.Distance(transform.position, cloudCollider.position) : 0;
 		
-		int speed = moveSpeed;
-		if (Debug.isDebugBuild && Input.GetKey(KeyCode.LeftShift))
-			speed *= 2;
-		
 		if(lassoController.isHooked)
 		{
 			Vector3 moveDir = new Vector3();
@@ -54,7 +51,11 @@ public class PlayerController : MonoBehaviour
 			else if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
 				moveDir -= left;
 			
-			controller.SimpleMove(moveDir * (speed * Time.deltaTime));
+			int speed = hookedMoveSpeed;
+			if (Debug.isDebugBuild && Input.GetKey(KeyCode.LeftShift))
+				speed *= 2;
+			
+			controller.SimpleMove(moveDir * (hookedMoveSpeed * Time.deltaTime));
 			
 			// pull collider along
 			colliderDistance = Vector3.Distance(transform.position, cloudCollider.position);
@@ -69,6 +70,10 @@ public class PlayerController : MonoBehaviour
 		}
 		else
 		{
+			int speed = moveSpeed;
+			if (Debug.isDebugBuild && Input.GetKey(KeyCode.LeftShift))
+				speed *= 2;
+			
 			// Move forward / backward
 			if(Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow))
 				controller.SimpleMove(forward * (speed * Time.deltaTime));

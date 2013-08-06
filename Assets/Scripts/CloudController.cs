@@ -11,7 +11,9 @@ public class CloudController : MonoBehaviour
 	public Material rainyCloudMat;
 	public float moveVelocity = 100;
 	public float moveAwayForce = 1;
+	public float moveAwayDistanceThreshold = 20;
 	public float lookAtPlayerForce = 1;
+	public float idleMovementIntensity = 1;
 	public float pullVelocity = 10000;
 	public float minCloudScale = 0.1f;
 	public float minStartScale = 0.75f;
@@ -62,14 +64,18 @@ public class CloudController : MonoBehaviour
 		
 		if (state == CloudState.Normal)
 		{
-			Quaternion rotation = Quaternion.LookRotation(playerTransform.position - transform.position);
-			rotation.x = 0;
-			rotation.z = 0;
-			transform.rotation = Quaternion.Slerp(transform.rotation, rotation, Time.deltaTime * lookAtPlayerForce);
-			
-			
-			Vector3 playerDir = transform.position - playerTransform.position;
-			rigidbody.AddForce(playerDir.normalized * moveAwayForce);
+			// Look at player and try to move away from player if he's close enough
+			if(Vector3.Distance(transform.position, playerTransform.position) <= moveAwayDistanceThreshold)
+			{
+				Quaternion rotation = Quaternion.LookRotation(playerTransform.position - transform.position);
+				rotation.x = 0;
+				rotation.z = 0;
+				transform.rotation = Quaternion.Slerp(transform.rotation, rotation, Time.deltaTime * lookAtPlayerForce);
+				
+				Vector3 playerDir = transform.position - playerTransform.position;
+				Vector3 randomDir = new Vector3(Random.Range(-idleMovementIntensity, idleMovementIntensity), 0, Random.Range(-idleMovementIntensity, idleMovementIntensity));
+				rigidbody.AddForce((playerDir.normalized * moveAwayForce) + randomDir);
+			}
 		}
         else if (state == CloudState.Rain)
         {
