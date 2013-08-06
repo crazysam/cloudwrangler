@@ -62,7 +62,7 @@ public class CloudController : MonoBehaviour
     {
 		if(GameController.state != GameController.GameState.play) return;
 		
-		if (state == CloudState.Normal)
+		if (state == CloudState.Normal && playerTransform != null)
 		{
 			// Look at player and try to move away from player if he's close enough
 			if(Vector3.Distance(transform.position, playerTransform.position) <= moveAwayDistanceThreshold)

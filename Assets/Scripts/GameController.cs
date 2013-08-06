@@ -46,15 +46,16 @@ public class GameController : MonoBehaviour
 	
 	void Update()
 	{
-		
-		
 		if(state == GameState.play)
 		{
 			gameTimer += Time.deltaTime;
-			if(gameTimer >= roundLength || Input.GetKeyDown(KeyCode.Escape))
+			if(gameTimer >= roundLength)
 			{
 				EndRound();
 			}
+			
+			if(Input.GetKeyDown(KeyCode.Escape))
+				Application.LoadLevel("MenuScene");
 		}
 		else if(state == GameState.roundOver)
 		{
@@ -81,7 +82,7 @@ public class GameController : MonoBehaviour
 		if(gotNewHighScore && !restartingGame)
 			HighScoreManager.instance.SaveHighScore(playerName, score);
 		
-		Application.LoadLevel("GameScene");
+		Application.LoadLevel("MenuScene");
 		restartingGame = true;
 	}
 	

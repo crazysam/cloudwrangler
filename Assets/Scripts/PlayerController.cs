@@ -3,10 +3,10 @@ using System.Collections;
 
 public class PlayerController : MonoBehaviour
 {
-	public int moveSpeed;
-	public int hookedMoveSpeed;
-	public int rotateSpeed;
-	public float lookAtDamping;
+	public int moveSpeed = 12500;
+	public int hookedMoveSpeed = 14000;
+	public int rotateSpeed = 75;
+	public float lookAtDamping = 10;
 
 	private LassoController lassoController;
 	private Transform cloudCollider 
@@ -102,7 +102,7 @@ public class PlayerController : MonoBehaviour
 	public void CalcLassoLineLocation()
 	{
 		Vector3 colliderToPlayer = transform.position - cloudCollider.transform.position;
-		Vector3 lineEndPos = cloudCollider.transform.position - (colliderToPlayer.normalized * (cloudCollider.localScale.x / 2));
+		Vector3 lineEndPos = cloudCollider.transform.position + (colliderToPlayer.normalized * (cloudCollider.localScale.x / 2));
 		lassoController.lassoLine.GetComponent<LineRenderer>().SetPosition(0, lassoController.lassoSpawnLocation.position);
 		lassoController.lassoLine.GetComponent<LineRenderer>().SetPosition(1, lineEndPos);
 	}
