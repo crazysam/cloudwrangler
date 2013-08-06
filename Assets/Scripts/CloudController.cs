@@ -1,31 +1,30 @@
 ﻿using UnityEngine;
 using System.Collections;
-using System.Collections.Generic;
 
 public class CloudController : MonoBehaviour
 {
-    public Transform playerTransform;
+	public Transform playerTransform;
 	public Transform cloudMeshTransform;
 	public Transform floraPrefab;
 	public LayerMask floraRaycastMask = -1;
     public Material happyCloudMat;
 	public Material rainyCloudMat;
+	public float moveVelocity = 100;
+	public float moveAwayForce = 1;
+	public float lookAtPlayerForce = 1;
+	public float pullVelocity = 10000;
+	public float minCloudScale = 0.1f;
+	public float minStartScale = 0.75f;
+	public float maxStartScale = 1f;
+	public float minShrinkSpeed = 0.2f;
+	public float maxShrinkSpeed = 0.5f;
 	
 	[HideInInspector]
-    public Transform cloudColliderCenter;
+	private float shrinkSpeed;
 	[HideInInspector]
-    public float runThreshold;
+	private float cloudScale;
 	[HideInInspector]
-    public float runVelocity;
-	[HideInInspector]
-    public float normalXVelocity;
-	[HideInInspector]
-    public float normalZVelocity;
-	[HideInInspector]
-    public float pullVelocity;
-	
-	[HideInInspector]
-	public static List<CloudController> rainingClouds = new List<CloudController>();
+	private Transform cloudColliderCenter;
 
     public enum CloudState
     {
@@ -37,35 +36,42 @@ public class CloudController : MonoBehaviour
     [HideInInspector]
     public CloudState state;
 
-    private int flip;
-
     // Use this for initialization
     void Start()
     {
-        particleSystem.enableEmission = false;
         state = CloudState.Normal;
-        flip = 1;
+		particleSystem.enableEmission = false;
+		ResetVelocity();
+		
+		shrinkSpeed = Random.Range(minShrinkSpeed, maxShrinkSpeed);
+		cloudScale = Random.Range(minStartScale, maxStartScale);
+		transform.localScale = new Vector3(cloudScale, cloudScale, cloudScale);
+		Quaternion newRot = Quaternion.Euler(0, Random.Range(0, 360f), 0);
+		transform.rotation = newRot;
     }
+	
+	void ResetVelocity()
+	{
+		rigidbody.velocity = new Vector3(Random.Range(-moveVelocity, moveVelocity), 0, Random.Range(-moveVelocity, moveVelocity));
+	}
 
     // Update is called once per frame
     void Update()
     {
-        if (state == CloudState.Normal)
-        {
-            Vector3 deltaPosition = transform.position - playerTransform.position;
-            if (deltaPosition.magnitude < runThreshold)
-            {
-                deltaPosition.Normalize();
-                deltaPosition.y = 0.0f;
-                rigidbody.velocity = deltaPosition * runVelocity;
-            }
-            else
-            {
-                
-                rigidbody.velocity = new Vector3(flip * normalXVelocity, 0, flip * normalZVelocity);
-            }
-        }
-        else if (state == CloudState.Rain && cloudColliderCenter != null)
+		if(GameController.state != GameController.GameState.play) return;
+		
+		if (state == CloudState.Normal)
+		{
+			Quaternion rotation = Quaternion.LookRotation(playerTransform.position - transform.position);
+			rotation.x = 0;
+			rotation.z = 0;
+			transform.rotation = Quaternion.Slerp(transform.rotation, rotation, Time.deltaTime * lookAtPlayerForce);
+			
+			
+			Vector3 playerDir = transform.position - playerTransform.position;
+			rigidbody.AddForce(playerDir.normalized * moveAwayForce);
+		}
+        else if (state == CloudState.Rain)
         {
 			// Add force to keep cloud within cloudCollider
 			float colliderRadius = cloudColliderCenter.localScale.x;
@@ -90,6 +96,18 @@ public class CloudController : MonoBehaviour
 					GameController.score++;
 				}
 			}
+			
+			// Shrink cloud
+			if(cloudScale > minCloudScale)
+			{
+				cloudScale -= Time.deltaTime * shrinkSpeed;
+				transform.localScale = new Vector3(cloudScale, cloudScale, cloudScale);
+			}
+			else
+			{
+				CloudManager.rainingClouds.Remove(this);
+				Destroy(gameObject);
+			}
         }
     }
 
@@ -111,9 +129,9 @@ public class CloudController : MonoBehaviour
 
     void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.name.Equals("WallPlane"))
+        if (collision.gameObject.tag.Equals("WallTag"))
         {
-            flip *= -1;
+			ResetVelocity();
         }
     }
 
@@ -127,7 +145,7 @@ public class CloudController : MonoBehaviour
 				cloudMeshTransform.GetComponent<SkinnedMeshRenderer>().material = rainyCloudMat;
                 particleSystem.enableEmission = true;
                 cloudColliderCenter = collision.transform;
-                rainingClouds.Add(this);
+                CloudManager.rainingClouds.Add(this);
             }
         }
     }
@@ -138,8 +156,8 @@ public class CloudController : MonoBehaviour
         {
             if (state == CloudState.Rain)
             {
-				SetDeadState();
-                rainingClouds.Remove(this);
+				SetNormalState();
+                CloudManager.rainingClouds.Remove(this);
             }
         }
     }

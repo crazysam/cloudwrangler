@@ -10,7 +10,7 @@ public class LassoBar : MonoBehaviour
 	// Use this for initialization
 	void Start()
 	{
-		cam = transform.parent.GetComponentInChildren<Camera>();
+		cam = Camera.main;
 		lasso = transform.parent.GetComponentInChildren<LassoController>();
 	}
 	

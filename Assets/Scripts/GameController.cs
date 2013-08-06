@@ -123,7 +123,13 @@ public class GameController : MonoBehaviour
 			GUI.SetNextControlName("PlayerInputControl");
 			Event e = Event.current;
         	if (e.keyCode == KeyCode.Return)
+			{
 				RestartGame();
+			}
+			else if (e.keyCode == KeyCode.Escape)
+			{
+				Application.Quit();
+			}
         	else
 			{
 				Vector2 textSize = newHighScoreTextStyle.CalcSize(new GUIContent(playerName));

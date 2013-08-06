@@ -1,23 +1,19 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class CloudManager : MonoBehaviour
 {
 
     public int totalClouds;
     public Terrain terrain;
-    public Transform cloud;
     public Transform player;
     public Transform cloudCollider;
+	public Transform cloudPrefab;
 	public float colliderPullForce;
-    public float runThresholdLower;
-    public float runThresholdUpper;
-    public float runVelocityLower;
-    public float runVelocityUpper;
-    public float normalXVelocityLower;
-    public float normalXVelocityUpper;
-    public float normalZVelocityLower;
-    public float normalZVelocityUpper;
+	
+	[HideInInspector]
+	public static List<CloudController> rainingClouds = new List<CloudController>();
 
     // Use this for initialization
     void Start()
@@ -27,18 +23,12 @@ public class CloudManager : MonoBehaviour
         for (int i = 0; i < totalClouds; i++)
         {
             float xPos = Random.Range(terrainPosition.x + 200, terrainPosition.x - 200 + terrainSize.x);
-            float zPos = Random.Range(terrainPosition.z + 200, terrainPosition.z - 200   + terrainSize.z);
+            float zPos = Random.Range(terrainPosition.z + 200, terrainPosition.z - 200 + terrainSize.z);
 
             Vector3 randomPos = new Vector3(xPos, 150f, zPos);
-            Transform newCloud = (Transform)Instantiate(cloud, randomPos, Quaternion.identity);
-            CloudController ctrl = newCloud.GetComponent<CloudController>();
-            ctrl.playerTransform = player;
-            ctrl.runThreshold = Random.Range(runThresholdLower, runThresholdUpper);
-            ctrl.runVelocity = Random.Range(runVelocityLower, runVelocityUpper);
-            ctrl.normalXVelocity = Random.Range(normalXVelocityLower, normalXVelocityUpper);
-            ctrl.normalZVelocity = Random.Range(normalZVelocityLower, normalZVelocityUpper);
-            ctrl.pullVelocity = colliderPullForce;
-        }
+            Transform cloud = (Transform)Instantiate(cloudPrefab, randomPos, Quaternion.identity);
+			cloud.GetComponent<CloudController>().playerTransform = player;
+		}
     }
 
     // Update is called once per frame

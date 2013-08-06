@@ -64,6 +64,8 @@ public class PlayerController : MonoBehaviour
 				Vector3 colliderToPlayerDir = cloudCollider.position - transform.position;
 				cloudCollider.position -= colliderToPlayerDir.normalized * distanceDelta;
 			}
+			
+			CalcLassoLineLocation();
 		}
 		else
 		{
@@ -85,10 +87,18 @@ public class PlayerController : MonoBehaviour
 		}
 		
 		// Look at collider if we caught some clouds!
-		if(cloudCollider.gameObject.activeSelf && CloudController.rainingClouds.Count > 0)
+		if(cloudCollider.gameObject.activeSelf && CloudManager.rainingClouds.Count > 0)
 		{
 			Quaternion rotation = Quaternion.LookRotation(cloudCollider.position - transform.position);
 			transform.rotation = Quaternion.Slerp(transform.rotation, rotation, Time.deltaTime * lookAtDamping);
 		}
+	}
+	
+	public void CalcLassoLineLocation()
+	{
+		Vector3 colliderToPlayer = transform.position - cloudCollider.transform.position;
+		Vector3 lineEndPos = cloudCollider.transform.position - (colliderToPlayer.normalized * (cloudCollider.localScale.x / 2));
+		lassoController.lassoLine.GetComponent<LineRenderer>().SetPosition(0, lassoController.lassoSpawnLocation.position);
+		lassoController.lassoLine.GetComponent<LineRenderer>().SetPosition(1, lineEndPos);
 	}
 }

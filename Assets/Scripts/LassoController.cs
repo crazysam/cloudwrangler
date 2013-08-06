@@ -9,8 +9,10 @@ public class LassoController : MonoBehaviour
 	public int minCloudColliderSize;
 	public int cloudColliderShrinkSpeed;
 	public float trailLifetime;
+	public Transform player;
 	public Transform cloudCollider;
 	public Transform lassoBar;
+	public Transform lassoLine;
 	public Transform lassoSpawnLocation;
 	public LayerMask raycastMask = -1;
 
@@ -24,10 +26,13 @@ public class LassoController : MonoBehaviour
 	
 	private float colliderRadius;
 	private List<Vector2> pointList;
+	private bool hookedEffectPing;
+	private Tweener hookedEffectTweener;
 
 	// Use this for initialization
 	void Start()
 	{
+		player = transform.parent;
 		HOTween.Init(false, false, true);
 		HOTween.EnableOverwriteManager();
 		DisengageLasso();
@@ -39,7 +44,7 @@ public class LassoController : MonoBehaviour
 	{
 		if(GameController.state != GameController.GameState.play) return;
 		
-		if (isEngaged)
+		if (isEngaged && !isHooked)
 		{
 			lassoLifetime -= Time.deltaTime;
 			if (lassoLifetime > 0)
@@ -62,13 +67,11 @@ public class LassoController : MonoBehaviour
 			else
 				DisengageLasso();
 		}
-		else
-			transform.position = lassoSpawnLocation.position;
 		
 		// shrink cloud collider
 		if(cloudCollider.gameObject.activeSelf && colliderRadius != -1)
 		{
-			if(colliderRadius > minCloudColliderSize && CloudController.rainingClouds.Count > 0)
+			if(colliderRadius > minCloudColliderSize && CloudManager.rainingClouds.Count > 0)
 			{
 				colliderRadius -= Time.deltaTime * cloudColliderShrinkSpeed;
 				cloudCollider.localScale = new Vector3(colliderRadius, cloudCollider.localScale.y, colliderRadius);
@@ -81,14 +84,17 @@ public class LassoController : MonoBehaviour
 		}
 
 		// Process Input
-		if (!isEngaged && Input.GetMouseButtonDown(0))
+		if (Input.GetMouseButtonDown(0))
 		{
-			EngageLasso();
-		}
-		else if (Input.GetMouseButtonUp(0))
-		{
-			DisengageLasso();
-			UnhookLasso();
+			if(isEngaged || isHooked)
+			{
+				DisengageLasso();
+				UnhookLasso();
+			}
+			else
+			{
+				EngageLasso();
+			}
 		}
 	}
 
@@ -113,26 +119,29 @@ public class LassoController : MonoBehaviour
 	void HookLasso()
 	{
 		isHooked = true;
+		lassoLine.GetComponent<LineRenderer>().enabled = true;
+		player.GetComponent<PlayerController>().CalcLassoLineLocation();
 	}
 	
 	void UnhookLasso(bool killClouds = false)
 	{
 		isHooked = false;
+		lassoLine.GetComponent<LineRenderer>().enabled = false;
 		
-		foreach(CloudController cc in CloudController.rainingClouds)
+		foreach(CloudController cc in CloudManager.rainingClouds)
 		{
 			if(killClouds)
 				cc.SetDeadState();
 			else
 				cc.SetNormalState();
 		}
-		CloudController.rainingClouds = new List<CloudController>();
+		CloudManager.rainingClouds = new List<CloudController>();
 	}
 	
 	// lasso becomes hooked when there is clouds within cloud collider
 	private void CheckLassoHooked(float newRadius)
 	{
-		if(CloudController.rainingClouds.Count > 0)
+		if(CloudManager.rainingClouds.Count > 0)
 		{
 			HookLasso();
 			colliderRadius = newRadius;
@@ -152,7 +161,7 @@ public class LassoController : MonoBehaviour
 	{
 		Vector2 newPointEndPos = pointList[pointList.Count - 1];
 		Vector2 newPointStartPos = pointList[pointList.Count - 2];
-		for (int i = 0; i < pointList.Count - 4; i += 2)
+		for (int i = 0; i < pointList.Count - 16; i += 2)
 		{
 			Vector2 prevPointStartPos = pointList[i];
 			Vector2 prevPointEndPos = pointList[i + 1];
